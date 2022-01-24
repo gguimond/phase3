@@ -17,6 +17,12 @@ export default class Preloader extends Phaser.Scene
     this.load.image('duck', 'textures/duck.png')
     this.load.image('parrot', 'textures/parrot.png')
     this.load.image('penguin', 'textures/penguin.png')
+    this.load.audio("good", ["sounds/good.mp3"]);
+    this.load.audio("bad", ["sounds/bad.mp3"]);
+    this.load.audio("game_over", ["sounds/game_over.mp3"]);
+    this.load.audio("win", ["sounds/win.mp3"]);
+    this.load.audio("background", ["sounds/background.mp3"]);
+    this.load.audio("freeze", ["sounds/freeze.mp3"]);
 	}
 
 	create()

@@ -155,7 +155,7 @@ export default class Game extends Phaser.Scene
         // disable the player and any movement
         this.player.active = false
         this.player.setVelocity(0, 0)
-
+        this.freeze.play()
         // wait 1 second and then return to normal
         this.time.delayedCall(1000, () => {
             item.setTint(0xffffff)
@@ -184,6 +184,7 @@ export default class Game extends Phaser.Scene
         // no match if the revealed items are not the same texture
         if (first.item.texture !== second.item.texture)
         {
+            this.bad.play()
             // hide the items and set box to no longer opened
             this.tweens.add({
                 targets: [first.item, second.item],
@@ -204,11 +205,12 @@ export default class Game extends Phaser.Scene
         }
         ++this.matchesCount
 
+        this.good.play()
+
 	    // we have a match! wait 1 second then set box to frame 8
         this.time.delayedCall(1000, () => {
             first.box.setFrame(8)
             second.box.setFrame(8)
-
             if (this.matchesCount >= 4)
             {
                 // game won
@@ -223,6 +225,7 @@ export default class Game extends Phaser.Scene
                     fontSize: 48
                 })
                 .setOrigin(0.5)
+                this.win.play()
                 this.time.delayedCall(2000, () => {
                     document.location.reload()
                 })
@@ -259,6 +262,13 @@ export default class Game extends Phaser.Scene
             undefined,
             this
         )
+
+        this.good = this.sound.add("good", { loop: false })
+        this.bad = this.sound.add("bad", { loop: false })
+        this.gameOver = this.sound.add("game_over", { loop: false })
+        this.win = this.sound.add("win", { loop: false })
+        this.freeze = this.sound.add("freeze", { loop: false })
+        this.sound.add("background", { loop: true }).play()
 
     }
 
@@ -383,6 +393,7 @@ export default class Game extends Phaser.Scene
         const { width, height } = this.scale
         this.add.text(width * 0.5, height -50, 'You Lose!', { fontSize: 48 })
             .setOrigin(0.5)
+        this.gameOver.play()
         this.time.delayedCall(2000, () => {
             document.location.reload()
         })
