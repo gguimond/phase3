@@ -23,6 +23,7 @@ export default class Game extends Phaser.Scene
 {
     selectedBoxes = []
     matchesCount = 0
+    mistakesCount = 0
 
 	constructor()
 	{
@@ -52,12 +53,27 @@ export default class Game extends Phaser.Scene
                 box.setSize(64, 32)
                     .setOffset(0, 32)
                     .setData('itemType', level[row][col])
+                    .setInteractive()
+                    .on('pointerdown', (pointer, localX, localY, event)=> {
+                        console.log(pointer.x)
+                        this.player.x = box.x
+                        this.player.y = box.y + 50
+                        /*this.activeBox = box
+                        this.openBox(this.activeBox)
+                        this.activeBox.setFrame(10)
+                        this.activeBox = undefined*/
+                        this.handlePlayerBoxCollide(this.player, box)
+                        this.openBox(box)
+                        this.activeBox.setFrame(10)
+                        this.activeBox = undefined
+                    })
                 xPer += 0.25
             }
     
             xPer = 0.25
             y += 150
         }
+        
     }
 
     /**
@@ -185,6 +201,8 @@ export default class Game extends Phaser.Scene
         if (first.item.texture !== second.item.texture)
         {
             this.bad.play()
+            const { width, height } = this.scale
+            this.mistakesLabel.text = 'mistakes: ' + (++this.mistakesCount)
             // hide the items and set box to no longer opened
             this.tweens.add({
                 targets: [first.item, second.item],
@@ -221,12 +239,13 @@ export default class Game extends Phaser.Scene
 
                 // add a You Win! text 👇
                 const { width, height } = this.scale
-                this.add.text(width * 0.5, height -50, 'You Win!', {
+                const score = (parseInt(this.timerLabel.text) - this.mistakesCount * 3) + 5 || 0
+                this.add.text(50, height -50, 'You Win! Score: ' + score, {
                     fontSize: 48
                 })
-                .setOrigin(0.5)
+                
                 this.win.play()
-                this.time.delayedCall(2000, () => {
+                this.time.delayedCall(5000, () => {
                     document.location.reload()
                 })
             }
@@ -248,11 +267,11 @@ export default class Game extends Phaser.Scene
         this.createBoxes()
 
         // create a Text object 👇
-		const timerLabel = this.add.text(width -75 , 50, '45', { fontSize: 48 })
+		this.timerLabel = this.add.text(width -75 , 50, '45', { fontSize: 48 })
         .setOrigin(0.5)
 
         // 👇 create a new instance
-        this.countdown = new CountDown(this, timerLabel)
+        this.countdown = new CountDown(this, this.timerLabel)
         this.countdown.start(this.handleCountdownFinished.bind(this))
 
         this.physics.add.collider(
@@ -269,6 +288,10 @@ export default class Game extends Phaser.Scene
         this.win = this.sound.add("win", { loop: false })
         this.freeze = this.sound.add("freeze", { loop: false })
         this.sound.add("background", { loop: true }).play()
+
+        this.mistakesLabel = this.add.text(200, 50, 'mistakes: ' + this.mistakesCount, {
+            fontSize: 48
+        }).setOrigin(0.5)
 
     }
 
@@ -357,7 +380,6 @@ export default class Game extends Phaser.Scene
         if (spaceJustPressed && this.activeBox)
         {
             this.openBox(this.activeBox)
-
             this.activeBox.setFrame(10)
             this.activeBox = undefined
         }
@@ -391,10 +413,10 @@ export default class Game extends Phaser.Scene
 
         // create a You Lose! message
         const { width, height } = this.scale
-        this.add.text(width * 0.5, height -50, 'You Lose!', { fontSize: 48 })
+        this.add.text(width * 0.5, height -75, 'You Lose!', { fontSize: 48 })
             .setOrigin(0.5)
         this.gameOver.play()
-        this.time.delayedCall(2000, () => {
+        this.time.delayedCall(5000, () => {
             document.location.reload()
         })
     }
