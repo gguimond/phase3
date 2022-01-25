@@ -55,7 +55,6 @@ export default class Game extends Phaser.Scene
                     .setData('itemType', level[row][col])
                     .setInteractive()
                     .on('pointerdown', (pointer, localX, localY, event)=> {
-                        console.log(pointer.x)
                         this.player.x = box.x
                         this.player.y = box.y + 50
                         /*this.activeBox = box
